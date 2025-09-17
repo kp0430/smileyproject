@@ -1,192 +1,155 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 void main() {
-  runApp(const SmileyApp());
+  runApp(const ShapesDemoApp());
 }
 
-class SmileyApp extends StatefulWidget {
-  const SmileyApp({super.key});
-
-  @override
-  State<SmileyApp> createState() => _SmileyAppState();
-}
-
-class _SmileyAppState extends State<SmileyApp> {
-  String _selectedEmoji = "smiley"; 
+class ShapesDemoApp extends StatelessWidget {
+  const ShapesDemoApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Emoji Drawer',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text("Choose Emoji"),
-          backgroundColor: Colors.blueAccent,
-        ),
-        drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              const DrawerHeader(
-                decoration: BoxDecoration(color: Colors.blueAccent),
-                child: Text(
-                  "Emoji Options",
-                  style: TextStyle(color: Colors.white, fontSize: 24),
-                ),
+      title: 'Shapes + Emoji Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
+      ),
+      home: const ShapesDemoScreen(),
+    );
+  }
+}
+
+class ShapesDemoScreen extends StatefulWidget {
+  const ShapesDemoScreen({super.key});
+  @override
+  State<ShapesDemoScreen> createState() => _ShapesDemoScreenState();
+}
+
+enum EmojiType { party, heart, smiley }
+
+class _ShapesDemoScreenState extends State<ShapesDemoScreen> {
+  EmojiType _selected = EmojiType.party;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Shapes + Emoji Demo')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ===== Task 1 =====
+            const Text('Task 1: Basic Shapes',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 200,
+              child: CustomPaint(
+                painter: BasicShapesPainter(),
+                size: const Size(double.infinity, 200),
               ),
-              // When you click on one of the options, it changes the state to "smiley" or "heart", when you add the party hat emoji, set status to smth like "party" and then make it change to that on tap
-              // Then refer to comment below
-              ListTile(
-                title: const Text("Smiley Face"),
-                onTap: () {
-                  setState(() {
-                    _selectedEmoji = "smiley";
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: const Text("Heart"),
-                onTap: () {
-                  setState(() {
-                    _selectedEmoji = "heart";
-                  });
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        ),
-        body: Center(
-          child: SizedBox(
-            height: 300,
-            width: 300,
-            // When you want to add more emojis to the drawer, create a class i.e PartyPainter and then add it to the list below. It's like an if else sequence
-            // Gonna have to change the code below, since we now have 3 or 4 emojis instead of just 2. In pseudo code it's like if "smiley", then painter = SmileyPainter, do that for each emoji.
-            // Make a party hat emoji w/ confetti, I've made the heart and smiley face already.
-            
-            child: CustomPaint(
-              painter: _selectedEmoji == "smiley"
-                  ? SmileyPainter()
-                  : HeartPainter(),
             ),
-          ),
+
+            const SizedBox(height: 24),
+
+            // ===== Task 2 =====
+            const Text('Task 2: Big Bright Smiley',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 280,
+              child: CustomPaint(
+                painter: SmileyFace(),
+                size: const Size(double.infinity, 280),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // ===== Core: Interactive Emoji =====
+            const Text('Interactive Emoji (Selection + Dynamic Drawing)',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Text('Choose emoji:'),
+                const SizedBox(width: 12),
+                DropdownButton<EmojiType>(
+                  value: _selected,
+                  items: const [
+                    DropdownMenuItem(
+                      value: EmojiType.party,
+                      child: Text('Party Face 🎉'),
+                    ),
+                    DropdownMenuItem(
+                      value: EmojiType.heart,
+                      child: Text('Heart ❤️'),
+                    ),
+                    DropdownMenuItem(
+                      value: EmojiType.smiley,
+                      child: Text('Smiley 🙂'),
+                    ),
+                  ],
+                  onChanged: (v) => setState(() => _selected = v ?? EmojiType.party),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 320,
+              child: CustomPaint(
+                painter: EmojiPainter(_selected),
+                size: const Size(double.infinity, 320),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class SmileyPainter extends CustomPainter {
-@override
+// ===== Task 1: Basic Shapes =====
+class BasicShapesPainter extends CustomPainter {
+  @override
   void paint(Canvas canvas, Size size) {
     final centerX = size.width / 2;
     final centerY = size.height / 2;
 
-    //Head
-    final headPaint = Paint()
-      ..color = Colors.yellow
+    final squareOffset = Offset(centerX - 80, centerY);
+    final circleOffset = Offset(centerX, centerY);
+    final arcOffset = Offset(centerX + 80, centerY);
+    final rectOffset = Offset(centerX - 160, centerY);
+    final lineStart = Offset(centerX - 200, centerY - 50);
+    final lineEnd = Offset(centerX - 140, centerY + 50);
+    final ovalOffset = Offset(centerX + 160, centerY);
+
+    // Square
+    final squarePaint = Paint()
+      ..color = Colors.blue
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(centerX - 7, centerY + 20), 120, headPaint);
+    canvas.drawRect(
+      Rect.fromCenter(center: squareOffset, width: 60, height: 60),
+      squarePaint,
+    );
 
-    // Eyes
-    final eyePaint = Paint()
-      ..color = Colors.white
+    // Circle
+    final circlePaint = Paint()
+      ..color = Colors.red
       ..style = PaintingStyle.fill;
-    final eyeBorder = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 4;
+    canvas.drawCircle(circleOffset, 30, circlePaint);
 
-    // Right eye
-    canvas.drawCircle(Offset(centerX + 40, centerY), 30, eyePaint);
-    canvas.drawCircle(Offset(centerX + 40, centerY), 30, eyeBorder);
-
-    // Left eye
-    canvas.drawCircle(Offset(centerX - 50, centerY), 30, eyePaint);
-    canvas.drawCircle(Offset(centerX - 50, centerY), 30, eyeBorder);
-
-    // Pupils
-    final pupilPaint = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(centerX + 40, centerY), 10, pupilPaint);
-    canvas.drawCircle(Offset(centerX - 50, centerY), 10, pupilPaint);
-
-    // Smile
-     final smilePaint = Paint()
-      ..color = Colors.black
+    // Arc
+    final arcPaint = Paint()
+      ..color = Colors.green
       ..style = PaintingStyle.stroke
       ..strokeWidth = 5;
-
     canvas.drawArc(
-      Rect.fromCenter(
-        center: Offset(centerX - 10, centerY + 50),
-        width: 100,
-        height: 70,
-      ),
-      0.6,
-      2,
+      Rect.fromCenter(center: arcOffset, width: 60, height: 60),
+      0,
+      2.1,
       false,
-      smilePaint,
-    );
-    // cheeky lil dimple
-    canvas.drawArc(
-      Rect.fromCenter(
-        center: Offset(centerX - 10, centerY + 69),
-        width: 100,
-        height: 30,
-      ),
-      0.6,
-      -1.5,
-      false,
-      smilePaint,
-    );
-  }
-  
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
-  }
-  
-}
-
-class HeartPainter extends CustomPainter {
-    @override
-    void paint(Canvas canvas, Size size) {
-      Paint paint = Paint();
-      paint
-        ..color = Colors.black
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round
-        ..strokeWidth = 6;
-
-      Paint paint1 = Paint();
-      paint1
-        ..color = Colors.red
-        ..style = PaintingStyle.fill
-        ..strokeWidth = 0;
-
-      double width = size.width;
-      double height = size.height;
-
-      Path path = Path();
-      path.moveTo(0.5 * width, height * 0.35);
-      path.cubicTo(0.2 * width, height * 0.1, -0.25 * width, height * 0.6,
-          0.5 * width, height);
-      path.moveTo(0.5 * width, height * 0.35);
-      path.cubicTo(0.8 * width, height * 0.1, 1.25 * width, height * 0.6,
-          0.5 * width, height);
-
-      canvas.drawPath(path, paint1);
-      canvas.drawPath(path, paint);
-    }
-
-    @override
-    bool shouldRepaint(CustomPainter oldDelegate) {
-      return true;
-    }
-
-}
-
-  
+      ar
