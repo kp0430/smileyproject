@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+
 void main() {
   runApp(const ShapesDemoApp());
 }
+
 class ShapesDemoApp extends StatelessWidget {
   const ShapesDemoApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Shapes Drawing Demo',
+      title: 'Shapes + Emoji Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         useMaterial3: true,
@@ -17,23 +20,30 @@ class ShapesDemoApp extends StatelessWidget {
     );
   }
 }
-class ShapesDemoScreen extends StatelessWidget {
+
+class ShapesDemoScreen extends StatefulWidget {
   const ShapesDemoScreen({super.key});
+  @override
+  State<ShapesDemoScreen> createState() => _ShapesDemoScreenState();
+}
+
+enum EmojiType { party, heart, smiley }
+
+class _ShapesDemoScreenState extends State<ShapesDemoScreen> {
+  EmojiType _selected = EmojiType.party;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Shapes Drawing Demo'),
-      ),
+      appBar: AppBar(title: const Text('Shapes + Emoji Demo')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Task 1: Basic Shapes',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+            // ===== Task 1 =====
+            const Text('Task 1: Basic Shapes',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             SizedBox(
               height: 200,
@@ -42,55 +52,73 @@ class ShapesDemoScreen extends StatelessWidget {
                 size: const Size(double.infinity, 200),
               ),
             ),
-            const SizedBox(height: 20),
-            const Text(
-              'Task 2: Combined Shapes (Abstract Design)',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+
+            const SizedBox(height: 24),
+
+            // ===== Task 2 =====
+            const Text('Task 2: Big Bright Smiley',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             SizedBox(
-              height: 300,
-              child: CustomPaint(
-                painter: CombinedShapesPainter(),
-                size: const Size(double.infinity, 300),
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Task 3: Styled Shapes',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              height: 300,
-              child: CustomPaint(
-                painter: StyledShapesPainter(),
-                size: const Size(double.infinity, 300),
-              ),
-            ),
-            const Text(
-              "Task 4 Smiley face",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-             SizedBox(
-              height: 300,
+              height: 280,
               child: CustomPaint(
                 painter: SmileyFace(),
-                size: const Size(double.infinity, 300),
+                size: const Size(double.infinity, 280),
               ),
-            )
+            ),
+
+            const SizedBox(height: 24),
+
+            // ===== Core: Interactive Emoji =====
+            const Text('Interactive Emoji (Selection + Dynamic Drawing)',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Text('Choose emoji:'),
+                const SizedBox(width: 12),
+                DropdownButton<EmojiType>(
+                  value: _selected,
+                  items: const [
+                    DropdownMenuItem(
+                      value: EmojiType.party,
+                      child: Text('Party Face 🎉'),
+                    ),
+                    DropdownMenuItem(
+                      value: EmojiType.heart,
+                      child: Text('Heart ❤️'),
+                    ),
+                    DropdownMenuItem(
+                      value: EmojiType.smiley,
+                      child: Text('Smiley 🙂'),
+                    ),
+                  ],
+                  onChanged: (v) => setState(() => _selected = v ?? EmojiType.party),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 320,
+              child: CustomPaint(
+                painter: EmojiPainter(_selected),
+                size: const Size(double.infinity, 320),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 }
+
+// ===== Task 1: Basic Shapes =====
 class BasicShapesPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-// Determine the center of the canvas
     final centerX = size.width / 2;
     final centerY = size.height / 2;
+
     final squareOffset = Offset(centerX - 80, centerY);
     final circleOffset = Offset(centerX, centerY);
     final arcOffset = Offset(centerX + 80, centerY);
@@ -98,7 +126,8 @@ class BasicShapesPainter extends CustomPainter {
     final lineStart = Offset(centerX - 200, centerY - 50);
     final lineEnd = Offset(centerX - 140, centerY + 50);
     final ovalOffset = Offset(centerX + 160, centerY);
-// Draw a square
+
+    // Square
     final squarePaint = Paint()
       ..color = Colors.blue
       ..style = PaintingStyle.fill;
@@ -106,24 +135,27 @@ class BasicShapesPainter extends CustomPainter {
       Rect.fromCenter(center: squareOffset, width: 60, height: 60),
       squarePaint,
     );
-// Draw a circle
+
+    // Circle
     final circlePaint = Paint()
       ..color = Colors.red
       ..style = PaintingStyle.fill;
     canvas.drawCircle(circleOffset, 30, circlePaint);
-// Draw an arc
+
+    // Arc
     final arcPaint = Paint()
       ..color = Colors.green
       ..style = PaintingStyle.stroke
       ..strokeWidth = 5;
     canvas.drawArc(
       Rect.fromCenter(center: arcOffset, width: 60, height: 60),
-      0, // start angle in radians
-      2.1, // sweep angle in radians (about 120 degrees)
-      false, // whether to use center
+      0,
+      2.1,
+      false,
       arcPaint,
     );
-// Draw a rectangle
+
+    // Rectangle
     final rectPaint = Paint()
       ..color = Colors.orange
       ..style = PaintingStyle.fill;
@@ -131,12 +163,14 @@ class BasicShapesPainter extends CustomPainter {
       Rect.fromCenter(center: rectOffset, width: 80, height: 40),
       rectPaint,
     );
-// Draw a line
+
+    // (Still shows a line to compare—but Task 1 focuses on shapes)
     final linePaint = Paint()
       ..color = Colors.purple
       ..strokeWidth = 3;
     canvas.drawLine(lineStart, lineEnd, linePaint);
-// Draw an oval
+
+    // Oval
     final ovalPaint = Paint()
       ..color = Colors.teal
       ..style = PaintingStyle.fill;
@@ -145,210 +179,225 @@ class BasicShapesPainter extends CustomPainter {
       ovalPaint,
     );
   }
+
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
-class CombinedShapesPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final centerX = size.width / 2;
-    final centerY = size.height / 2;
-// Background gradient
-    final backgroundGradient = RadialGradient(
-      center: Alignment.center,
-      radius: 0.8,
-      colors: [Colors.blue.shade100, Colors.white],
-    );
-    canvas.drawRect(
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      Paint()..shader = backgroundGradient.createShader(Rect.fromLTWH(0, 0,
-          size.width, size.height)),
-    );
-// Draw a sun (circle with rays)
-    final sunPaint = Paint()
-      ..color = Colors.yellow
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(centerX, centerY - 40), 40, sunPaint);
-// Sun rays (lines)
-    final rayPaint = Paint()
-      ..color = Colors.yellow
-      ..strokeWidth = 3;
-    for (int i = 0; i < 8; i++) {
-      final angle = i * (pi / 4); // Use pi from dart:math
-      final dx = cos(angle) * 60;
-      final dy = sin(angle) * 60;
-      canvas.drawLine(
-        Offset(centerX, centerY - 40),
-        Offset(centerX + dx, centerY - 40 + dy),
-        rayPaint,
-      );
-    }
-// Draw a house (square with triangle roof)
-    final housePaint = Paint()
-      ..color = Colors.brown
-      ..style = PaintingStyle.fill;
-    canvas.drawRect(
-      Rect.fromCenter(center: Offset(centerX, centerY + 40), width: 80, height:
-      80),
-      housePaint,
-    );
-    final roofPaint = Paint()
-      ..color = Colors.red
-      ..style = PaintingStyle.fill;
-    final roofPath = Path()
-      ..moveTo(centerX - 60, centerY)
-      ..lineTo(centerX + 60, centerY)
-      ..lineTo(centerX, centerY - 60)
-      ..close();
-    canvas.drawPath(roofPath, roofPaint);
-// Draw a door (rectangle)
-    final doorPaint = Paint()
-      ..color = Colors.blueGrey
-      ..style = PaintingStyle.fill;
-    canvas.drawRect(
-      Rect.fromCenter(center: Offset(centerX, centerY + 60), width: 30, height:
-      50),
-      doorPaint,
-    );
-// Draw windows (squares)
-    final windowPaint = Paint()
-      ..color = Colors.blue.shade200
-      ..style = PaintingStyle.fill;
-    canvas.drawRect(
-      Rect.fromCenter(center: Offset(centerX - 25, centerY + 20), width: 20,
-          height: 20),
-      windowPaint,
-    );
-    canvas.drawRect(
-      Rect.fromCenter(center: Offset(centerX + 25, centerY + 20), width: 20,
-          height: 20),
-      windowPaint,
-    );
-  }
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
-  }
-}
-class StyledShapesPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final centerX = size.width / 2;
-    final centerY = size.height / 2;
-// Draw a gradient-filled rectangle
-    final rectGradient = LinearGradient(
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
-      colors: [Colors.red, Colors.blue],
-    );
-    final rect = Rect.fromCenter(center: Offset(centerX, centerY - 100), width:
-    200, height: 60);
-    canvas.drawRect(
-      rect,
-      Paint()
-        ..shader = rectGradient.createShader(rect)
-        ..style = PaintingStyle.fill,
-    );
-// Draw a circle with a border
-    final circlePaint = Paint()
-      ..color = Colors.green
-      ..style = PaintingStyle.fill;
-    final circleBorderPaint = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 4;
-    canvas.drawCircle(Offset(centerX - 80, centerY), 40, circlePaint);
-    canvas.drawCircle(Offset(centerX - 80, centerY), 40, circleBorderPaint);
-// Draw a transparent oval
-    final ovalPaint = Paint()
-      ..color = Colors.purple.withOpacity(0.5)
-      ..style = PaintingStyle.fill;
-    canvas.drawOval(
-      Rect.fromCenter(center: Offset(centerX + 80, centerY), width: 100, height:
-      60),
-      ovalPaint,
-    );
-// Draw a dashed line using a custom path effect
-    final dashPaint = Paint()
-      ..color = Colors.orange
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke;
-// We draw a series of short lines and spaces
-    final path = Path();
-    double startX = centerX - 100;
-    const dashLength = 10.0;
-    const spaceLength = 5.0;
-    while (startX < centerX + 100) {
-      path.moveTo(startX, centerY + 80);
-      path.lineTo(min(startX + dashLength, centerX + 100), centerY + 80);
-      startX += dashLength + spaceLength;
-    }
-    canvas.drawPath(path, dashPaint);
-// Draw a gradient arc
-    final arcGradient = SweepGradient(
-      center: Alignment.centerRight,
-      startAngle: 0,
-      endAngle: pi, // Use pi from dart:math
-      colors: [Colors.red, Colors.yellow, Colors.green],
-    );
-    final arcRect = Rect.fromCenter(center: Offset(centerX, centerY + 100), width:
-    120, height: 120);
-    final arcPaint = Paint()
-      ..shader = arcGradient.createShader(arcRect)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 10
-      ..strokeCap = StrokeCap.round;
-    canvas.drawArc(
-      Rect.fromCenter(center: Offset(centerX, centerY + 100), width: 100, height:
-      100),
-      0, // start angle
-      2.5, // sweep angle
-      false,
-      arcPaint,
-    );
-  }
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
-  }
-}
+
+// ===== Task 2: Big Bright Smiley =====
 class SmileyFace extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final centerX = size.width / 2;
-    final centerY = size.height / 2;
-    final eye = Paint()
-    ..color = Colors.white
-    ..style = PaintingStyle.fill;
-    final eyeliner = Paint()
-    ..color = Colors.black
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = 4;
-    canvas.drawCircle(Offset(centerX - -40, centerY), 30, eye);
-    canvas.drawCircle(Offset(centerX - -40, centerY), 30, eyeliner);
-    canvas.drawCircle(Offset(centerX - 50, centerY), 30, eye);
-    canvas.drawCircle(Offset(centerX - 50, centerY), 30, eyeliner);
+    final center = Offset(size.width / 2, size.height / 2);
+    final r = min(size.width, size.height) * 0.35;
+
+    // Face
+    final face = Paint()
+      ..color = Colors.yellow
+      ..style = PaintingStyle.fill;
+    final border = Paint()
+      ..color = Colors.orange.shade700
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 6;
+    canvas.drawCircle(center, r, face);
+    canvas.drawCircle(center, r, border);
+
+    // Eyes
+    final eyeWhite = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+    final eyeBorder = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4;
     final iris = Paint()
-    ..color = Colors.black
-    ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(centerX - -40, centerY), 10, iris);
-    canvas.drawCircle(Offset(centerX - 50, centerY), 10, iris);
+      ..color = Colors.black
+      ..style = PaintingStyle.fill;
 
+    final eyeOffsetX = r * 0.45;
+    final eyeOffsetY = r * -0.2;
+    final eyeRadius = r * 0.16;
+    final pupilRadius = eyeRadius * 0.4;
+
+    final leftEyeCenter = center.translate(-eyeOffsetX, eyeOffsetY);
+    final rightEyeCenter = center.translate(eyeOffsetX, eyeOffsetY);
+
+    for (final c in [leftEyeCenter, rightEyeCenter]) {
+      canvas.drawCircle(c, eyeRadius, eyeWhite);
+      canvas.drawCircle(c, eyeRadius, eyeBorder);
+      canvas.drawCircle(c.translate(0, 2), pupilRadius, iris);
+    }
+
+    // Smile arc
+    final mouthRect = Rect.fromCenter(
+      center: center.translate(0, r * 0.25),
+      width: r * 1.5,
+      height: r * 1.2,
+    );
     final smile = Paint()
-    ..color = Colors.black
-    
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 8
+      ..strokeCap = StrokeCap.round;
+    canvas.drawArc(mouthRect, pi * 0.1, pi * 0.8, false, smile);
 
-
-
-
+    // Custom blush
+    final blush = Paint()
+      ..color = Colors.pink.withOpacity(0.35)
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(leftEyeCenter.translate(0, r * 0.25), eyeRadius * 0.7, blush);
+    canvas.drawCircle(rightEyeCenter.translate(0, r * 0.25), eyeRadius * 0.7, blush);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
-    throw UnimplementedError();
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// ===== Core: Interactive Emoji Painter =====
+class EmojiPainter extends CustomPainter {
+  final EmojiType selected;
+  EmojiPainter(this.selected);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    switch (selected) {
+      case EmojiType.party:
+        _drawPartyFace(canvas, size);
+        break;
+      case EmojiType.heart:
+        _drawHeart(canvas, size);
+        break;
+      case EmojiType.smiley:
+        _drawSimpleSmiley(canvas, size);
+        break;
+    }
   }
 
+  // Party Face with hat + confetti
+  void _drawPartyFace(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final r = min(size.width, size.height) * 0.28;
+
+    // Face
+    canvas.drawCircle(center, r, Paint()..color = Colors.yellow);
+    canvas.drawCircle(
+        center, r, Paint()..color = Colors.black..style = PaintingStyle.stroke..strokeWidth = 5);
+
+    // Smiling eyes (arcs)
+    final eyePaint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 6;
+    final eyeDX = r * 0.5;
+    final eyeY = center.dy - r * 0.15;
+    canvas.drawArc(
+      Rect.fromCenter(center: Offset(center.dx - eyeDX, eyeY), width: r * 0.6, height: r * 0.6),
+      pi * 0.15,
+      pi * 0.7,
+      false,
+      eyePaint,
+    );
+    canvas.drawArc(
+      Rect.fromCenter(center: Offset(center.dx + eyeDX, eyeY), width: r * 0.6, height: r * 0.6),
+      pi * 0.15,
+      pi * 0.7,
+      false,
+      eyePaint,
+    );
+
+    // Big smile
+    final mouthRect =
+        Rect.fromCenter(center: center.translate(0, r * 0.3), width: r * 1.6, height: r * 1.2);
+    canvas.drawArc(mouthRect, pi * 0.05, pi * 0.9, false, eyePaint);
+
+    // Party hat (triangle)
+    final hat = Path()
+      ..moveTo(center.dx, center.dy - r * 1.25)
+      ..lineTo(center.dx - r * 0.6, center.dy - r * 0.2)
+      ..lineTo(center.dx + r * 0.6, center.dy - r * 0.2)
+      ..close();
+    canvas.drawPath(hat, Paint()..color = const Color(0xFF5C6BC0));
+    canvas.drawPath(
+      hat,
+      Paint()
+        ..color = Colors.black54
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3,
+    );
+
+    // Confetti (simple shapes/colors)
+    final rng = Random(42);
+    final confettiColors = [
+      Colors.redAccent,
+      Colors.lightGreen,
+      Colors.amber,
+      Colors.deepPurpleAccent,
+      Colors.cyan,
+    ];
+    for (int i = 0; i < 24; i++) {
+      final angle = rng.nextDouble() * 2 * pi;
+      final dist = r * (1.1 + rng.nextDouble() * 0.6);
+      final p = center + Offset(cos(angle), sin(angle)) * dist;
+      final c = confettiColors[i % confettiColors.length];
+      final t = i % 3;
+      if (t == 0) {
+        canvas.drawCircle(p, 4, Paint()..color = c);
+      } else if (t == 1) {
+        canvas.drawRect(Rect.fromCenter(center: p, width: 8, height: 8), Paint()..color = c);
+      } else {
+        canvas.drawLine(p, p + const Offset(8, -6), Paint()..color = c..strokeWidth = 3);
+      }
+    }
+  }
+
+  void _drawHeart(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final s = min(size.width, size.height) * 0.35;
+
+    final path = Path();
+    path.moveTo(center.dx, center.dy + s * 0.4);
+    path.cubicTo(
+      center.dx + s, center.dy + s * 0.05,
+      center.dx + s * 0.8, center.dy - s * 0.8,
+      center.dx, center.dy - s * 0.3,
+    );
+    path.cubicTo(
+      center.dx - s * 0.8, center.dy - s * 0.8,
+      center.dx - s, center.dy + s * 0.05,
+      center.dx, center.dy + s * 0.4,
+    );
+
+    canvas.drawPath(path, Paint()..color = const Color(0xFFFF5252));
+    canvas.drawPath(
+        path, Paint()..color = Colors.black87..style = PaintingStyle.stroke..strokeWidth = 4);
+  }
+
+  void _drawSimpleSmiley(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final r = min(size.width, size.height) * 0.3;
+
+    canvas.drawCircle(center, r, Paint()..color = Colors.yellow);
+    canvas.drawCircle(
+        center, r, Paint()..color = Colors.black..style = PaintingStyle.stroke..strokeWidth = 5);
+
+    // eyes
+    final eye = Paint()..color = Colors.black;
+    final dx = r * 0.45;
+    canvas.drawCircle(center.translate(-dx, -r * 0.15), r * 0.12, eye);
+    canvas.drawCircle(center.translate(dx, -r * 0.15), r * 0.12, eye);
+
+    // smile
+    final mouthRect =
+        Rect.fromCenter(center: center.translate(0, r * 0.25), width: r * 1.4, height: r * 1.0);
+    final mouth = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 7
+      ..strokeCap = StrokeCap.round;
+    canvas.drawArc(mouthRect, pi * 0.1, pi * 0.8, false, mouth);
+  }
+
+  @override
+  bool shouldRepaint(covariant EmojiPainter oldDelegate) => oldDelegate.selected != selected;
 }
